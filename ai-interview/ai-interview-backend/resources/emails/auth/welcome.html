@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Prepwise</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .email-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 40px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo h1 {
+            color: #4F46E5;
+            margin: 0;
+            font-size: 28px;
+        }
+        .hero {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .hero-title {
+            font-size: 24px;
+            color: #111827;
+            margin-bottom: 10px;
+        }
+        .hero-subtitle {
+            color: #6B7280;
+            font-size: 16px;
+        }
+        .content {
+            margin-bottom: 30px;
+        }
+        .greeting {
+            font-size: 18px;
+            color: #111827;
+            margin-bottom: 20px;
+        }
+        .feature-box {
+            background-color: #F9FAFB;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .feature-title {
+            font-weight: bold;
+            color: #4F46E5;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        .feature-text {
+            color: #6B7280;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .cta-button {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .button {
+            display: inline-block;
+            background-color: #4F46E5;
+            color: #ffffff !important;
+            padding: 14px 40px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 16px;
+        }
+        .tips {
+            background-color: #ECFDF5;
+            border-left: 4px solid #10B981;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .tips-title {
+            font-weight: bold;
+            color: #065F46;
+            margin-bottom: 8px;
+        }
+        .tips-text {
+            color: #047857;
+            font-size: 14px;
+        }
+        .footer {
+            text-align: center;
+            color: #9CA3AF;
+            font-size: 12px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #E5E7EB;
+        }
+        .social-links {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .social-links a {
+            display: inline-block;
+            margin: 0 10px;
+            color: #6B7280;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="logo">
+            <h1>Prepwise</h1>
+        </div>
+
+        <div class="hero">
+            <div class="hero-title">🎉 Welcome to Prepwise!</div>
+            <div class="hero-subtitle">Start Your AI-Powered Interview Preparation Journey</div>
+        </div>
+
+        <div class="content">
+            <div class="greeting">
+                Hello, {{ first_name }}!
+            </div>
+
+            <p>Thank you for choosing Prepwise. We're excited to help you prepare for your upcoming interviews.</p>
+
+            <p>As an AI-driven interview simulation platform, Prepwise provides you with:</p>
+
+            <div class="feature-box">
+                <div class="feature-title">📄 Smart Resume Analysis</div>
+                <div class="feature-text">
+                    Upload your resume, cover letter, and job description, and let AI create a personalized interview preparation plan for you.
+                </div>
+            </div>
+
+            <div class="feature-box">
+                <div class="feature-title">💬 Realistic Interview Simulation</div>
+                <div class="feature-text">
+                    Experience real interview scenarios with text and voice input support. Practice anytime, anywhere.
+                </div>
+            </div>
+
+            <div class="feature-box">
+                <div class="feature-title">📊 Professional Feedback Reports</div>
+                <div class="feature-text">
+                    Get detailed performance analysis and improvement suggestions. Track your progress over time.
+                </div>
+            </div>
+
+            <div class="cta-button">
+                <a href="{{ dashboard_url }}" class="button">Start Your First Mock Interview</a>
+            </div>
+
+            <div class="tips">
+                <div class="tips-title">💡 Quick Start Guide</div>
+                <div class="tips-text">
+                    1. Complete your profile<br>
+                    2. Upload your resume and target job description<br>
+                    3. Choose an interview type and start practicing<br>
+                    4. Review feedback reports and continuously improve
+                </div>
+            </div>
+
+            <p>If you have any questions or suggestions while using the platform, please feel free to contact our support team.</p>
+        </div>
+
+        <div class="footer">
+            <p>This is an automated email, please do not reply.</p>
+            <div class="social-links">
+                <a href="#">Help Center</a>
+                <a href="#">FAQ</a>
+                <a href="#">Contact Us</a>
+            </div>
+            <p>© 2025 Prepwise. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

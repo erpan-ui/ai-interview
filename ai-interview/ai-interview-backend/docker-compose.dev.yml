@@ -1,0 +1,66 @@
+# 开发环境专用配置
+# 使用方式: docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+
+services:
+  # PostgreSQL数据库（开发环境本地运行）
+  postgres:
+    image: postgres:16-alpine
+    container_name: ai-interview-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-demo}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-demo123}
+      - POSTGRES_DB=${POSTGRES_DB:-ai_interview}
+    ports:
+      - "${POSTGRES_EXTERNAL_PORT:-5434}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-demo}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: ai-interview:dev
+    network_mode: host
+    environment:
+      - ENV=development
+    volumes:
+      - ./app:/app/app
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Celery Worker - 复用开发环境镜像
+  celery-worker:
+    image: ai-interview:dev
+    environment:
+      - ENV=development
+    volumes:
+      - ./app:/app/app
+      - ./logs:/app/logs
+    networks:
+      - app-network
+
+  # Celery Beat - 复用开发环境镜像
+  celery-beat:
+    image: ai-interview:dev
+    depends_on:
+      - app
+
+  # 在开发环境中禁用Nginx服务
+  nginx:
+    profiles:
+      - donotstart
+
+volumes:
+  postgres-data:
+    driver: local

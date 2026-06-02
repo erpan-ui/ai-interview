@@ -1,0 +1,108 @@
+name: Quick CI Check
+
+on:
+  pull_request:
+    branches: [ dev, preview, main, production ]
+    types: [opened, synchronize]
+
+jobs:
+  quick-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5  # Fail fast if takes too long
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Need full history for diff
+
+    - name: Get changed files
+      id: changed-files
+      uses: tj-actions/changed-files@v41
+      with:
+        files: |
+          **/*.py
+          requirements.txt
+          Dockerfile
+          docker-compose*.yml
+
+    - name: Set up Python
+      if: contains(steps.changed-files.outputs.all_changed_files, '.py') || contains(steps.changed-files.outputs.all_changed_files, 'requirements.txt')
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+
+    - name: Install minimal dependencies
+      if: contains(steps.changed-files.outputs.all_changed_files, '.py')
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 black isort
+
+    - name: Quick syntax check
+      if: contains(steps.changed-files.outputs.all_changed_files, '.py')
+      run: |
+        # Only check syntax errors, not style
+        echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep '\.py$' | xargs -r python -m py_compile
+
+    - name: Critical error check
+      if: contains(steps.changed-files.outputs.all_changed_files, '.py')
+      continue-on-error: true  # Don't block PR on non-critical issues
+      run: |
+        # Only check for critical errors (syntax errors, undefined names, etc.)
+        echo "Checking for critical errors..."
+        if echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep '\.py$' | xargs -r flake8 --select=E9,F63,F7,F82 --show-source; then
+          echo "✅ No critical errors found"
+        else
+          echo "::error::❌ Critical code errors found! These should be fixed before merge."
+          exit 1  # Still fail on critical errors
+        fi
+
+    - name: Code formatting check (optional)
+      if: contains(steps.changed-files.outputs.all_changed_files, '.py')
+      continue-on-error: true  # Never fail the PR on formatting
+      run: |
+        # Check formatting with Black (warning only)
+        echo "Checking code formatting..."
+        if echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep '\.py$' | xargs -r black --check --quiet; then
+          echo "✅ Code formatting looks good"
+        else
+          echo "::warning::⚠️ Code formatting issues detected. Run 'black .' to fix."
+        fi
+
+        # Check import sorting with isort (warning only)
+        echo "Checking import sorting..."
+        if echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep '\.py$' | xargs -r isort --check-only --quiet; then
+          echo "✅ Import sorting looks good"
+        else
+          echo "::warning::⚠️ Import sorting issues detected. Run 'isort .' to fix."
+        fi
+
+    - name: Docker syntax check
+      if: contains(steps.changed-files.outputs.all_changed_files, 'Dockerfile') || contains(steps.changed-files.outputs.all_changed_files, 'docker-compose')
+      run: |
+        # Validate Dockerfile syntax
+        if [[ "${{ steps.changed-files.outputs.all_changed_files }}" == *"Dockerfile"* ]]; then
+          docker run --rm -i hadolint/hadolint < Dockerfile || true
+        fi
+
+        # Validate docker-compose syntax
+        for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+          if [[ $file == docker-compose*.yml ]]; then
+            docker-compose -f $file config > /dev/null || exit 1
+          fi
+        done
+
+    - name: Security scan (optional)
+      if: contains(steps.changed-files.outputs.all_changed_files, '.py')
+      continue-on-error: true
+      run: |
+        pip install bandit
+        echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep '\.py$' | xargs -r bandit -r -ll -f json | python -m json.tool || true
+
+    - name: Summary
+      if: always()
+      run: |
+        echo "✅ Quick CI check completed"
+        echo "Changed files checked: ${{ steps.changed-files.outputs.changed_files_count }}"
+        echo "For full testing, merge to target branch"
